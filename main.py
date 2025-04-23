@@ -1,4 +1,5 @@
-from flask import Flask, render_template, redirect
+from flask import Flask, render_template, redirect, jsonify, request
+import requests
 from flask_login import LoginManager, login_user
 
 from data import db_session
@@ -10,6 +11,8 @@ app = Flask(__name__)
 login_manager = LoginManager()
 login_manager.init_app(app)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
+last_location = {"lat": None, "lon": None}
+weather_key = "6df0831671dd861b4d734b18cf1831d9"
 
 
 @login_manager.user_loader
@@ -17,11 +20,28 @@ def load_user(user_id):
     db_sess = db_session.create_session()
     return db_sess.query(User).get(int(user_id))
 
+
+@app.route("/save_location", methods=["POST"])
+def save_location():
+    data = request.get_json()
+    last_location["lat"] = data.get("lat")
+    last_location["lon"] = data.get("lon")
+    print(last_location)
+    list_of_work()
+    return jsonify({"status": "success", "data": last_location})
+
+
 @app.route('/')
 def list_of_work():
     db_sess = db_session.create_session()
     users = db_sess.query(User).all()
-    return render_template('base.html', title='KinoMOOD')
+    # print(f"https://api.openweathermap.org/data/2.5/weather?lat={last_location['lat']}&lon={last_location['lon']}&appid={weather_key}")
+    response = requests.get(f"https://api.openweathermap.org/data/2.5/weather?lat={last_location['lat']}&lon={last_location['lon']}&appid={weather_key}")
+    if response.status_code == 200:
+        json_response = response.json()
+        weather = json_response["weather"][0]["main"]
+        print(weather)
+    return render_template('main.html', title='KinoMOOD')
 
 
 @app.route('/login', methods=['GET', 'POST'])
