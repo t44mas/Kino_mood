@@ -1,4 +1,8 @@
 {% extends "base.html" %}
+{% block extra_css %}
+    <link rel="stylesheet" href="/css/main.css">
+{% endblock %}
+
 {% block content %}
 
 <body>
@@ -31,5 +35,75 @@
   console.log("Геолокация не поддерживается в вашем браузере");
 }
     </script>
+    <h1> Выбери своё настроение — найди идеальный фильм! </h1>
+    <h2> Настроение определяет выбор. Доверься своим чувствам. </h2>
+    <p class="h1"> Как ты себя чувствуешь? </p>
+    <div class="container py-5">
+        <h2 class="text-center mb-4">Выберите ваше настроение</h2>
+        <form id="moodForm" method="POST">
+            <div class="row d-flex justify-content-center">
+                <!-- Радость-->
+                <div class="col-md-3 mb-4">
+                    <div class="mood-card">
+                        <input type="radio" id="joy" name="mood" value="joy">
+                        <label for="joy">
+                            <div class="card-body">
+                                <i class="bi bi-smile-fill" style="font-size: 3rem; color: #ffc107;"></i>
+                                <h5 class="card-title mt-3">Радость</h5>
+                                <p class="card-text">Позитив и веселье</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Грусть -->
+                <div class="col-md-3 mb-4">
+                    <div class="mood-card">
+                        <input type="radio" id="sadness" name="mood" value="sadness">
+                        <label for="sadness">
+                            <div class="card-body">
+                                <i class="bi bi-sad-fill" style="font-size: 3rem; color: #007bff;"></i>
+                                <h5 class="card-title mt-3">Грусть</h5>
+                                <p class="card-text">Тревога и печаль</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Любовь -->
+                <div class="col-md-3 mb-4">
+                    <div class="mood-card">
+                        <input type="radio" id="love" name="mood" value="love">
+                        <label for="love">
+                            <div class="card-body">
+                                <i class="bi bi-heart-fill" style="font-size: 3rem; color: #e83e8c;"></i>
+                                <h5 class="card-title mt-3">Любовь</h5>
+                                <p class="card-text">Романтика и страсть</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Приключение -->
+                <div class="col-md-3 mb-4">
+                    <div class="mood-card">
+                        <input type="radio" id="adventure" name="mood" value="adventure">
+                        <label for="adventure">
+                            <div class="card-body">
+                                <i class="bi bi-compass-fill" style="font-size: 3rem; color: #28a745;"></i>
+                                <h5 class="card-title mt-3">Приключения</h5>
+                                <p class="card-text">Экстрим</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-success">
+            Найти фильмы
+        </button>
+            </div>
+
+        </form>
+    </div>
 </body>
+
 {% endblock %}

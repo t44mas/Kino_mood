@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, jsonify, request
+from flask import Flask, render_template, redirect, jsonify, request, url_for
 import requests
 from flask_login import LoginManager, login_user
 
@@ -27,22 +27,31 @@ def save_location():
     last_location["lat"] = data.get("lat")
     last_location["lon"] = data.get("lon")
     print(last_location)
-    list_of_work()
+    choice_of_mood()
     return jsonify({"status": "success", "data": last_location})
 
 
-@app.route('/')
-def list_of_work():
+@app.route('/', methods=["GET", "POST"])
+def choice_of_mood():
     db_sess = db_session.create_session()
     users = db_sess.query(User).all()
     # print(f"https://api.openweathermap.org/data/2.5/weather?lat={last_location['lat']}&lon={last_location['lon']}&appid={weather_key}")
     response = requests.get(f"https://api.openweathermap.org/data/2.5/weather?lat={last_location['lat']}&lon={last_location['lon']}&appid={weather_key}")
     if response.status_code == 200:
         json_response = response.json()
-        weather = json_response["weather"][0]["main"]
-        print(weather)
+        weather = json_response["weather"]
+    if request.method == 'POST':
+        selected_mood = request.form.get('mood')
+        if selected_mood:
+            return redirect(url_for('show_movies', mood=selected_mood))
     return render_template('main.html', title='KinoMOOD')
 
+
+@app.route('/films/<mood>')
+###Только начал
+def show_movies(mood):
+    print(mood)
+    return render_template('show_movies.html', title='Фильмы')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

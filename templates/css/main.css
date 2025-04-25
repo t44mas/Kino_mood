@@ -1,0 +1,49 @@
+.mood-card {
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .mood-card input[type="radio"] {
+            display: none;
+        }
+
+        .mood-card label {
+            display: block;
+            border: 2px solid #ccc;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            transition: 0.3s ease;
+        }
+
+        .mood-card input[type="radio"]:checked + label {
+            border-color: #007bff;
+            background-color: #f1f1f1;
+        }
+
+        .mood-card input[type="radio"]:checked + label .card-body {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .mood-card:hover {
+            transform: scale(1.05);
+        }
+
+        .mood-card label:hover {
+            border-color: #007bff;
+        }
+
+        .mood-card .card-body {
+            padding: 20px;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            margin-top: 10px;
+        }
+
+        .card-text {
+            font-size: 1rem;
+            color: #555;
+        }
