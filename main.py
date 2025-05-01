@@ -13,6 +13,8 @@ login_manager.init_app(app)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 last_location = {"lat": None, "lon": None}
 weather_key = "6df0831671dd861b4d734b18cf1831d9"
+books_key = 'AIzaSyCAbAWA_ksxmrana6fb26m8-ugT6QTcvyI'
+mood_books = {"sadness": "drama"}
 
 
 @login_manager.user_loader
@@ -36,22 +38,40 @@ def choice_of_mood():
     db_sess = db_session.create_session()
     users = db_sess.query(User).all()
     # print(f"https://api.openweathermap.org/data/2.5/weather?lat={last_location['lat']}&lon={last_location['lon']}&appid={weather_key}")
-    response = requests.get(f"https://api.openweathermap.org/data/2.5/weather?lat={last_location['lat']}&lon={last_location['lon']}&appid={weather_key}")
+    response = requests.get(
+        f"https://api.openweathermap.org/data/2.5/weather?lat={last_location['lat']}&lon={last_location['lon']}&appid={weather_key}")
     if response.status_code == 200:
         json_response = response.json()
         weather = json_response["weather"]
+        print(weather[0]['main'])
     if request.method == 'POST':
         selected_mood = request.form.get('mood')
         if selected_mood:
-            return redirect(url_for('show_movies', mood=selected_mood))
+            return redirect(url_for('show_books', mood=selected_mood))
     return render_template('main.html', title='KinoMOOD')
 
 
 @app.route('/films/<mood>')
 ###Только начал
-def show_movies(mood):
-    print(mood)
-    return render_template('show_movies.html', title='Фильмы')
+def show_books(mood):
+    params = {}
+    genre = mood_books[mood]
+    url = f"https://www.googleapis.com/books/v1/volumes?q=subject:{genre}&maxResults=10&key=AIzaSyCAbAWA_ksxmrana6fb26m8-ugT6QTcvyI"
+    response = requests.get(url)
+    if response.status_code == 200:
+        data = response.json()
+        params["genre"] = mood_books[mood]
+        for i, book in enumerate(data['items']):
+            params[f"thumbnail{i}"] = book['volumeInfo']["imageLinks"]["thumbnail"]  # обложка
+            params[f"title{i}"] = book['volumeInfo']["title"]  # название
+            params[f"description{i}"] = book['volumeInfo'].get("description") # описание
+            params[f"authors{i}"] = ','.join(book['volumeInfo'].get("authors"))  # авторы
+            if params[f'description{i}']:
+                params[f'description{i}'] = params[f'description{i}'][:300] + "..."
+    else:
+        print(f"Ошибка запроса: {response.status_code}")
+    return render_template('show_books.html',title="Найденные книги", **params)
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -95,7 +115,6 @@ def register():
         db_sess.commit()
         return redirect('/')
     return render_template('register.html', form=form)
-
 
 
 def main():
