@@ -1,7 +1,7 @@
 from flask import Flask, render_template, redirect, jsonify, request, url_for
 import requests
 from flask_login import LoginManager, login_user
-
+from apis import get_books_by_genre, get_book_by_id
 from data import db_session
 from data.users import User
 from form.register import RegisterForm
@@ -51,24 +51,21 @@ def choice_of_mood():
     return render_template('main.html', title='KinoMOOD')
 
 
-@app.route('/films/<mood>')
-###Только начал
+@app.route('/books/<mood>')
 def show_books(mood):
     params = []
     genre = mood_books[mood]
-    url = f"https://www.googleapis.com/books/v1/volumes?q=subject:{genre}&maxResults=10&langRestrict=ru&key=AIzaSyCAbAWA_ksxmrana6fb26m8-ugT6QTcvyI"
-    response = requests.get(url)
-    if response.status_code == 200:
-        data = response.json()
-        print(data)
-        for i, book in enumerate(data['items']):
-            params.append((book['volumeInfo']["imageLinks"]["thumbnail"], book['volumeInfo']["title"], book['volumeInfo'].get("description", "")[:75] + "...",
-                           ','.join(book['volumeInfo'].get("authors"))))
+    params = get_books_by_genre(genre, amount=3)
+    return render_template('show_books.html', title="Найденные книги", params=params, genre=genre)
 
-    else:
-        print(f"Ошибка запроса: {response.status_code}")
-    print(params)
-    return render_template('show_books.html',title="Найденные книги", params=params, genre=genre)
+
+# Начал Можно ввести оценку книги, отзывы, где купить(ссылка на магазины)
+@app.route('/book/<book_id>')
+def book_detail(book_id):
+    print(book_id)
+    book = get_book_by_id(book_id)
+    print(book)
+    return render_template('book_detail.html', book=book)
 
 
 @app.route('/login', methods=['GET', 'POST'])

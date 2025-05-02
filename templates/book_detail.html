@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/book_detail.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-md-4 text-center">
+            <img src="{{ book['image'] }}" alt="{{ book['title'] }}" class="img-fluid book-image">
+        </div>
+
+        <div class="col-md-8">
+            <div class="book-header">
+                <h2 class="mb-1">{{ book['title'] }}</h2>
+                {% if book['year_published'] %}
+                <p class="text-muted mb-0">({{ book['year_published'] }})</p>
+                {% endif %}
+            </div>
+
+            {% if book['authors'] %}
+            <p><strong>Автор:</strong> {{ book['authors'] }}</p>
+            {% endif %}
+
+            {% if book['full_genre'] %}
+            <p><strong>Жанр:</strong> {{ book['full_genre'] }}</p>
+            {% endif %}
+
+            {% if book['description'] %}
+            <div class="book-section-title">Описание</div>
+            <p>{{ book['description'] }}</p>
+            {% endif %}
+
+            {% if book['publisher'] %}
+            <div class="book-section-title">Издатель</div>
+            <p>{{ book['publisher'] }}</p>
+            {% endif %}
+            <button class="btn btn-secondary" onclick="history.back()">
+                Назад к списку
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
