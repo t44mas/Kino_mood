@@ -7,7 +7,6 @@
 {% block content %}
 <div class="container py-5">
     <h1 class="text-center mb-5">Книги по вашему настроению</h1>
-
     <div class="row justify-content-center" id="cards-container">
         {% for book in params %}
         <div class="col-sm-6 col-md-4 col-lg-3 d-flex align-items-stretch mb-4">
@@ -35,6 +34,9 @@
             </div>
         </div>
         {% endfor %}
+        <button class="btn_newbooks" onclick="history.go(0)">
+            Найти еще книги
+        </button>
     </div>
 </div>
 {% endblock %}
