@@ -1,78 +1,37 @@
 {% extends "base.html" %}
 
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/show_books.css') }}">
+{% endblock %}
+
 {% block content %}
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<style>
-    .row {
-      column-gap: 20px;
-    }
-  .card {
-    margin-bottom: 20px;
-    transition: transform 0.3s;
-  }
-  .card:hover {
-    transform: scale(1.03);
-  }
-  .card-img-top {
-    height: 300px;
-    object-fit: contain;
-    background: #f5f5f5;
-    padding: 5px;
-  }
-  .badge-genre {
-    font-size: 0.8em;
-  }
-<!--    .error-message {-->
-<!--      color: red;-->
-<!--      text-align: center;-->
-<!--      margin: 20px 0;-->
-<!--    }-->
-</style>
-<body>
 <div class="container py-5">
-    <h1 class="text-center mb-4">Книги по вашему настроению</h1>
-    <div class="row" id="cards-container">
-        <div class="card" style="width: 18rem;">
-            <img src="{{thumbnail0}}" class="card-img-top" alt="...">
-            <div class="card-body">
-                <h5 class="card-title">{{title0}}</h5>
-                <p class="card-text text-muted">{{authors0}}</p>
-                <p class="card-text">{{description0}}</p>
-                <span class="badge bg-primary badge-genre">{{genre}}</span>
-            </div>
-        </div>
+    <h1 class="text-center mb-5">Книги по вашему настроению</h1>
 
-        <div class="card" style="width: 18rem;">
-            <img src="{{thumbnail1}}" class="card-img-top" alt="...">
-            <div class="card-body">
-                <h5 class="card-title">{{title1}}</h5>
-                <p class="card-text text-muted">{{authors1}}</p>
-                <p class="card-text">{{description1}}</p>
-                <span class="badge bg-primary badge-genre">{{genre}}</span>
-            </div>
-        </div>
+    <div class="row justify-content-center" id="cards-container">
+        {% for book in params %}
+        <div class="col-sm-6 col-md-4 col-lg-3 d-flex align-items-stretch mb-4">
+            <div class="card">
+                <img src="{{ book[0] }}"
+                     class="card-img-top"
+                     alt="{{ book[1] }}">
 
-        <div class="card" style="width: 18rem;">
-            <img src="{{thumbnail2}}" class="card-img-top" alt="...">
-            <div class="card-body">
-                <h5 class="card-title">{{title2}}</h5>
-                <p class="card-text text-muted">{{authors2}}</p>
-                <p class="card-text">{{description2}}</p>
-                <span class="badge bg-primary badge-genre">{{genre}}</span>
-            </div>
-        </div>
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">{{ book[1] }}</h5>
 
-        <div class="card" style="width: 18rem;">
-            <img src="{{thumbnail3}}" class="card-img-top" alt="...">
-            <div class="card-body">
-                <h5 class="card-title">{{title3}}</h5>
-                <p class="card-text text-muted">{{authors3}}</p>
-                <p class="card-text">{{description3}}</p>
-                <span class="badge bg-primary badge-genre">{{genre}}</span>
+                    {% if book[2] %}
+                        <p class="card-text text-muted">Автор: {{ book[2] }}</p>
+                    {% endif %}
+
+                    {% if book[3] %}
+                        <p class="card-text">{{ book[3][:150] }}{% if book[3]|length > 150 %}...{% endif %}</p>
+                    {% endif %}
+
+                    <span class="badge bg-primary badge-genre mt-auto">{{ genre }}</span>
+                </div>
             </div>
         </div>
+        {% endfor %}
     </div>
 </div>
->
-
 {% endblock %}

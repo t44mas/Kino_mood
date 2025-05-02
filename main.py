@@ -54,23 +54,21 @@ def choice_of_mood():
 @app.route('/films/<mood>')
 ###Только начал
 def show_books(mood):
-    params = {}
+    params = []
     genre = mood_books[mood]
-    url = f"https://www.googleapis.com/books/v1/volumes?q=subject:{genre}&maxResults=10&key=AIzaSyCAbAWA_ksxmrana6fb26m8-ugT6QTcvyI"
+    url = f"https://www.googleapis.com/books/v1/volumes?q=subject:{genre}&maxResults=10&langRestrict=ru&key=AIzaSyCAbAWA_ksxmrana6fb26m8-ugT6QTcvyI"
     response = requests.get(url)
     if response.status_code == 200:
         data = response.json()
-        params["genre"] = mood_books[mood]
+        print(data)
         for i, book in enumerate(data['items']):
-            params[f"thumbnail{i}"] = book['volumeInfo']["imageLinks"]["thumbnail"]  # обложка
-            params[f"title{i}"] = book['volumeInfo']["title"]  # название
-            params[f"description{i}"] = book['volumeInfo'].get("description") # описание
-            params[f"authors{i}"] = ','.join(book['volumeInfo'].get("authors"))  # авторы
-            if params[f'description{i}']:
-                params[f'description{i}'] = params[f'description{i}'][:300] + "..."
+            params.append((book['volumeInfo']["imageLinks"]["thumbnail"], book['volumeInfo']["title"], book['volumeInfo'].get("description", "")[:75] + "...",
+                           ','.join(book['volumeInfo'].get("authors"))))
+
     else:
         print(f"Ошибка запроса: {response.status_code}")
-    return render_template('show_books.html',title="Найденные книги", **params)
+    print(params)
+    return render_template('show_books.html',title="Найденные книги", params=params, genre=genre)
 
 
 @app.route('/login', methods=['GET', 'POST'])
