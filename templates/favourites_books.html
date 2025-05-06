@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/favourites_books.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="text-center mb-5">💖 Ваши избранные книги</h1>
+
+    {% if books %}
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for book in books %}
+        <div class="col">
+            <div class="card book-card h-100">
+                <div class="card-body">
+                    <img src="{{ book['poster_url'] }}" alt="{{ book['title'] }}" class="book-img">
+                    <div class="book-info">
+                        <h5>{{ book['title'] }}</h5>
+                        <p class="text-muted">Автор: {{ book['author'] }}</p>
+                        <p class="book-description">{{ book['short_description'] }}</p>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-0 d-flex justify-content-between">
+                    <a href="{{ url_for('book_detail', book_id=book['book_id']) }}"
+                       class="btn btn-outline-primary btn-sm">
+                        Подробнее
+                    </a>
+                    <form method="post">
+                        <input type="hidden" name="book_id" value="{{ book['book_id'] }}">
+                        <button type="submit" class="btn btn-outline-danger btn-sm btn-remove">Удалить</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info text-center">
+        У вас нет избранных книг.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
