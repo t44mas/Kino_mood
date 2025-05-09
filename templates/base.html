@@ -8,6 +8,7 @@
           integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
           crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
     {% block extra_css %}{% endblock %}
     <title>{{title}}</title>
 
@@ -34,8 +35,9 @@
 
                 </ul>
 
-                <form class="d-flex mr-3">
-                    <input class="form-control me-2" type="search" placeholder="Поиск" aria-label="Search">
+                <form class="d-flex mr-3" method="get" action="{{ url_for('search_by_title') }}">
+                    <input class="form-control me-2" type="search" name="q" placeholder="Поиск книги"
+                           aria-label="Search">
                     <button class="btn btn-outline-success" type="submit">Искать</button>
                 </form>
                 <div class="d-flex">

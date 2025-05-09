@@ -46,3 +46,26 @@ def get_book_by_id(volume_id):
                'year_published': year_published,
                'publisher': publisher, 'full_genre': full_genre}
     return results
+
+
+def get_books_by_title(query, amount=10):
+    url = f"https://www.googleapis.com/books/v1/volumes?q=intitle:{query}&maxResults={amount}&langRestrict=ru&key={API_KEY}"
+    response = requests.get(url)
+    if response.status_code != 200:
+        return []
+
+    data = response.json().get("items", [])
+
+    results = []
+    for item in data:
+        volume = item.get("volumeInfo", {})
+        image = volume.get("imageLinks", {}).get("thumbnail", "")
+        title = volume.get("title", "Без названия")
+        authors = ", ".join(volume.get("authors", []))
+        description = volume.get("description", "")
+        categories = ", ".join(volume.get("categories", []))
+        book_id = item.get("id", "")
+
+        results.append((image, title, authors, description, book_id, categories))
+
+    return results

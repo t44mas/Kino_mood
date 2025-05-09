@@ -3,7 +3,7 @@ import requests
 from flask_login import LoginManager, login_user, current_user, login_required, logout_user
 from pyexpat.errors import messages
 
-from apis import get_books_by_genre, get_book_by_id
+from apis import get_books_by_genre, get_book_by_id, get_books_by_title
 from data import db_session
 from data.users import User
 from data.favorites import Favorite
@@ -175,6 +175,42 @@ def register():
         db_sess.commit()
         return redirect('/')
     return render_template('register.html', form=form)
+
+
+@app.route('/search_by_title', methods=['GET', 'POST'])
+def search_by_title():
+    query = request.args.get('q', '').strip()
+    if not query:
+        return render_template('search_by_title.html', books=[], query=query, message="Введите запрос")
+
+    books = get_books_by_title(query, amount=3)
+    if request.method == 'POST':
+        db_sess = db_session.create_session()
+        book_id = request.form.get('book_id')
+        book = get_book_by_id(book_id)
+        user_id = current_user.get_id()
+        book_ids = [book_id for (book_id,) in db_sess.query(Favorite.book_id).filter(Favorite.user_id == user_id).all()]
+        if book_id not in book_ids:
+            if len(book['description']) > 150:
+                favorite = Favorite(book_id=book_id, title=book['title'], poster_url=book['image'],
+                                    user_id=current_user.get_id(),
+                                    overview=10, short_description=book['description'][:150], author=book['authors'])
+            else:
+                favorite = Favorite(book_id=book_id, title=book['title'], poster_url=book['image'],
+                                    user_id=current_user.get_id(),
+                                    overview=10, short_description=book['description'], author=book['authors'])
+            db_sess.add(favorite)
+            db_sess.commit()
+            # сделать чтобы message вылазила интерактивным окном И НЕ ПЕРЕЗАГРУЖАЛА СТРАНИЦУ везде
+            return render_template('search_by_title.html', title="Найденные книги", params=books, query=query,
+                                   message='Книга успешно добавлена')
+        else:
+            return render_template('search_by_title.html', title="Найденные книги", params=books, query=query,
+                                   message='Книга уже в Избранном')
+    if not books:
+        return render_template('search_by_title.html', books=[], query=query, message="Ничего не найдено")
+
+    return render_template('search_by_title.html', params=books, query=query)
 
 
 def main():

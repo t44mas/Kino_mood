@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/show_books.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/search_by_title.css') }}">
 {% endblock %}
 
 {% block content %}
 <div class="container py-5">
-    <h2 class="text-center mb-4">Книги по вашему настроению</strong></h2>
+    <h2 class="text-center mb-4">Результаты поиска для: <strong>"{{ query }}"</strong></h2>
 
     {% if message %}
     <div class="alert alert-info text-center">{{ message }}</div>
@@ -32,7 +32,7 @@
                     <p class="card-text">{{ book[3][:150] }}{% if book[3]|length > 150 %}...{% endif %}</p>
                     {% endif %}
 
-                    <span class="badge badge-genre mt-auto">{{ genre or 'Жанр не указан' }}</span>
+                    <span class="badge badge-genre mt-auto">{{ book[5] or 'Жанр не указан' }}</span>
 
                     <a href="{{ url_for('book_detail', book_id=book[4]) }}" class="btn btn-primary mt-3">
                         Подробнее <i class="fas fa-book-open ml-2"></i>

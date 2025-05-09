@@ -1,49 +1,123 @@
+body {
+    font-family: 'Montserrat', sans-serif;
+    background: linear-gradient(to right, #f8f9fa, #e3f2fd);
+    color: #333;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+h1, h2, .h1 {
+    text-align: center;
+    font-weight: 700;
+    animation: fadeInDown 0.8s ease-in-out;
+    color: #212529;
+}
+
+h1 {
+    font-size: 2.5rem;
+    margin-top: 40px;
+}
+
+h2 {
+    font-size: 1.75rem;
+    margin-top: 10px;
+}
+
+.h1 {
+    font-size: 1.3rem;
+    margin: 30px 0 10px;
+    color: #444;
+}
+
+.container.py-5 {
+    animation: fadeInUp 0.8s ease-in-out;
+}
+
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+
 .mood-card {
-            cursor: pointer;
-            transition: transform 0.3s ease;
-        }
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
 
-        .mood-card input[type="radio"] {
-            display: none;
-        }
+.mood-card:hover {
+    transform: scale(1.05);
+}
 
-        .mood-card label {
-            display: block;
-            border: 2px solid #ccc;
-            padding: 20px;
-            border-radius: 15px;
-            text-align: center;
-            transition: 0.3s ease;
-        }
+.mood-card input[type="radio"] {
+    display: none;
+}
 
-        .mood-card input[type="radio"]:checked + label {
-            border-color: #007bff;
-            background-color: #f1f1f1;
-        }
+.mood-card label {
+    display: block;
+    border: 2px solid #ccc;
+    border-radius: 20px;
+    padding: 20px;
+    text-align: center;
+    background-color: #fff;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
 
-        .mood-card input[type="radio"]:checked + label .card-body {
-            background-color: #007bff;
-            color: white;
-        }
+.mood-card label:hover {
+    border-color: #28a745;
+    box-shadow: 0 4px 14px rgba(40, 167, 69, 0.2);
+}
 
-        .mood-card:hover {
-            transform: scale(1.05);
-        }
+.mood-card input[type="radio"]:checked + label {
+    border-color: #28a745;
+    background-color: #eafbee;
+    box-shadow: 0 0 15px rgba(40, 167, 69, 0.4);
+}
 
-        .mood-card label:hover {
-            border-color: #007bff;
-        }
+.mood-card input[type="radio"]:checked + label .card-body {
+    background-color: #28a745;
+    color: #fff;
+    border-radius: 15px;
+}
 
-        .mood-card .card-body {
-            padding: 20px;
-        }
+.mood-card .card-body {
+    padding: 20px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
 
-        .card-title {
-            font-size: 1.2rem;
-            margin-top: 10px;
-        }
+.card-title {
+    font-size: 1.2rem;
+    margin-top: 10px;
+    font-weight: 600;
+}
 
-        .card-text {
-            font-size: 1rem;
-            color: #555;
-        }
+.card-text {
+    font-size: 1rem;
+    color: #555;
+}
+
+
+.btn-success {
+    background-color: #28a745;
+    border: none;
+    padding: 12px 30px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 50px;
+    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.3);
+    transition: all 0.3s ease;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(40, 167, 69, 0.4);
+}
