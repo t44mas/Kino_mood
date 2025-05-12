@@ -9,6 +9,13 @@
     <h1 class="text-center mb-5">💖 Ваши избранные книги</h1>
 
     {% if books %}
+        <form method="get" class="mb-3">
+        <select name="sort_by" onchange="this.form.submit()" class="form-select">
+            <option value="title" {% if request.args.get('sort_by') == 'title' %}selected{% endif %}>По названию</option>
+            <option value="author" {% if request.args.get('sort_by') == 'author' %}selected{% endif %}>По автору</option>
+            <option value="overview" {% if request.args.get('sort_by') == 'overview' %}selected{% endif %}>По оценке</option>
+        </select>
+    </form>
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         {% for book in books %}
         <div class="col">
