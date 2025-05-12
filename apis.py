@@ -1,5 +1,8 @@
 import requests
 import random
+from data import db_session
+from data.favorites import Favorite
+from data.overviews import Overview
 
 API_KEY = "AIzaSyCAbAWA_ksxmrana6fb26m8-ugT6QTcvyI"
 
@@ -22,8 +25,19 @@ def get_books_by_genre(genre, amount=10):
         authors = ", ".join(volume.get("authors", []))
         description = volume.get("description", "")
         book_id = item.get("id", "")
+        db_sess = db_session.create_session()
+        overview = 0
+        if db_sess.query(Overview).filter(Overview.book_id == book_id).first():
+            suma = 0
+            count = 0
+            for ovrw in db_sess.query(Overview).filter(Overview.book_id == book_id).all():
+                suma += ovrw.rate
+                count += 1
+            if count:
+                overview = round(suma/count, 2)
+                print(overview)
 
-        results.append((image, title, authors, description, book_id))
+        results.append((image, title, authors, description, book_id, overview))
 
     return results
 
