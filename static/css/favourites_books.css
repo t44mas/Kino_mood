@@ -40,3 +40,21 @@
     .btn-remove {
         margin-left: 0.5rem;
     }
+form select.form-select {
+    max-width: 300px;
+    margin: 0 auto 20px auto;
+    display: block;
+    border: 2px solid #8e44ad;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 16px;
+    background-color: #fdfbff;
+    color: #333;
+    transition: border-color 0.3s ease;
+}
+
+form select.form-select:focus {
+    border-color: #5e3370;
+    outline: none;
+    box-shadow: 0 0 5px rgba(94, 51, 112, 0.5);
+}

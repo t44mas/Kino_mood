@@ -139,9 +139,16 @@ def favourites_books():
             db_sess.delete(fav)
             db_sess.commit()
         return redirect(url_for('favourites_books'))
+    sort_by = request.args.get('sort_by', 'title')
     user_id = current_user.get_id()
-    list1 = db_sess.query(Favorite).filter(Favorite.user_id == user_id).all()
-
+    query = db_sess.query(Favorite).filter(Favorite.user_id == user_id)
+    if sort_by == 'title':
+        query = query.order_by(Favorite.title)
+    elif sort_by == 'author':
+        query = query.order_by(Favorite.author)
+    elif sort_by == 'overview':
+        query = query.order_by(Favorite.overview)
+    list1 = query.all()
     books = [{
         'book_id': item.book_id,
         'title': item.title,
