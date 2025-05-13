@@ -122,11 +122,55 @@ def show_books(genre):
 
 
 # Начал Можно ввести оценку книги, отзывы, где купить(ссылка на магазины)
-@app.route('/book/<book_id>')
+@app.route('/book/<book_id>', methods=["GET", "POST"])
 def book_detail(book_id):
     book = get_book_by_id(book_id)
     print(book)
-    return render_template('book_detail.html', book=book)
+    if request.method == 'POST':
+        if request.form.get('book_fav'):
+            db_sess = db_session.create_session()
+            book_id = request.form.get('book_fav')
+            book = get_book_by_id(book_id)
+            user_id = current_user.get_id()
+            book_ids = [book_id for (book_id,) in
+                        db_sess.query(Favorite.book_id).filter(Favorite.user_id == user_id).all()]
+            if book_id not in book_ids:
+                overview = get_overview(book_id)
+                print(overview)
+                if len(book['description']) > 150:
+                    favorite = Favorite(book_id=book_id, title=book['title'], poster_url=book['image'],
+                                        user_id=current_user.get_id(),
+                                        overview=overview, short_description=book['description'][:150],
+                                        author=book['authors'])
+                else:
+                    favorite = Favorite(book_id=book_id, title=book['title'], poster_url=book['image'],
+                                        user_id=current_user.get_id(),
+                                        overview=overview, short_description=book['description'],
+                                        author=book['authors'])
+                db_sess.add(favorite)
+                db_sess.commit()
+                # сделать чтобы message вылазила интерактивным окном И НЕ ПЕРЕЗАГРУЖАЛА СТРАНИЦУ везде
+                return render_template('book_detail.html', book=book, book_id=book_id)
+            else:
+                return render_template('book_detail.html', book=book, book_id=book_id)
+        else:
+            db_sess = db_session.create_session()
+            user_id = int(current_user.get_id())
+            data = request.get_json()
+            book_id = data.get('book_ID')
+            rating = data.get('rating')
+            # Проверка данных
+            if not book_id or not rating:
+                return jsonify({
+                    'success': False,
+                    'error': 'Missing book_ID or rating'
+                }), 400
+
+            overview = Overview(rate=rating, user_id=user_id, book_id=book_id)
+            db_sess.add(overview)
+            db_sess.commit()
+            return jsonify({'success': True})
+    return render_template('book_detail.html', book=book, book_id=book_id)
 
 
 @app.route('/favourites_books', methods=["GET", "POST"])
