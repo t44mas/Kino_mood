@@ -83,7 +83,7 @@ h2 {
 }
 
 .mood-card input[type="radio"]:checked + label .card-body {
-    background-color: #28a745;
+    background-color: #ceedd0
     color: #fff;
     border-radius: 15px;
 }
