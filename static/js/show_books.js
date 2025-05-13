@@ -1,0 +1,121 @@
+
+document.querySelectorAll('.card').forEach(card => {
+  const openBtn = card.querySelector('.open-rating-btn');
+  const closeBtn = card.querySelector('.close-btn');
+  const overlay = card.querySelector('.overlay');
+  const popup = card.querySelector('.rating-popup');
+  const stars = card.querySelectorAll('.star');
+  const ratingText = card.querySelector('.selected-rating-text');
+  const submitBtn = card.querySelector('.submit-rating');
+  let selectedRating = 0;
+
+  let closeTimeout = null;
+
+    // Открытие попапа
+    openBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        clearTimeout(closeTimeout);
+        overlay.style.display = 'block';
+        popup.style.display = 'block';
+        popup.classList.remove('hiding');
+        selectedRating = 0;
+        updateStars();
+        ratingText.textContent = 'Выберите количество звёзд';
+    });
+
+    // Закрытие попапа
+    closeBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        overlay.style.display = 'none';
+        popup.style.display = 'none';
+        closePopup();
+    });
+
+    overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) {
+            closePopup();
+        }
+    });
+
+    // Предотвращаем закрытие при клике внутри попапа
+    popup.addEventListener('click', function(e) {
+        e.stopPropagation();
+    });
+
+    // Обработка выбора звёзд
+    stars.forEach(star => {
+        star.addEventListener('click', function() {
+            selectedRating = parseInt(star.getAttribute('data-rating'));
+            ratingText.textContent = `Вы выбрали ${selectedRating} звёзд(ы)`;
+            updateStars();
+        });
+    });
+
+    // Отправка оценки
+    submitBtn.addEventListener('click', function() {
+        if (selectedRating === 0) {
+            alert('Пожалуйста, выберите оценку');
+            return;
+        }
+
+       // Получаем ID книги
+    const book = submitBtn.value.split(' ');
+    const bookId = book[0];
+    const genre = book[1];
+    // Отправляем данные на сервер
+    fetch('/books/'+genre, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            book_ID: bookId,
+            rating: selectedRating
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Спасибо за вашу оценку!');
+            closePopup();
+        } else {
+            alert('Ошибка при сохранении оценки: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Произошла ошибка при отправке оценки');
+    });
+        closePopup();
+    });
+
+    function updateStars() {
+        stars.forEach(star => {
+            const rating = parseInt(star.getAttribute('data-rating'));
+            if (rating <= selectedRating) {
+                star.classList.add('active');
+            } else {
+                star.classList.remove('active');
+            }
+        });
+    }
+
+    function closePopup() {
+        // Добавляем класс для анимации закрытия
+        popup.classList.add('hiding');
+
+        // Устанавливаем таймер для полного скрытия после анимации
+        closeTimeout = setTimeout(() => {
+            overlay.style.display = 'none';
+            popup.style.display = 'none';
+            popup.classList.remove('hiding');
+        }, 300); // Должно совпадать с длительностью анимации
+    }
+
+    // Закрытие при нажатии ESC
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closePopup();
+        }
+    });
+});

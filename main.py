@@ -1,7 +1,10 @@
+import os
+
 from flask import Flask, render_template, redirect, jsonify, request, url_for, g
 import requests
 from flask_login import LoginManager, login_user, current_user, login_required, logout_user
 from bs4 import BeautifulSoup
+from werkzeug.utils import secure_filename
 
 from apis import get_books_by_genre, get_book_by_id, get_books_by_title
 from data import db_session
@@ -28,7 +31,10 @@ mood_books = {("sadness", "Clouds"): "drama",
               ("love", "Clear"): "Fantasy romance",
               ("adventure", "Clear"): "happy adventure",
               }
-
+UPLOAD_FOLDER = 'static/uploads/'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+DEF_PHOTO = os.path.join(app.config['UPLOAD_FOLDER'], 'def_image.jpg')
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -243,6 +249,7 @@ def register():
         user = User(
             username=form.username.data,
             email=form.email.data,
+            profile_photo=DEF_PHOTO,
         )
         user.set_password(form.password.data)
         db_sess.add(user)
@@ -250,6 +257,32 @@ def register():
         return redirect('/')
     return render_template('register.html', form=form)
 
+@app.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile():
+    photo_path = None
+
+    with db_session.create_session() as db_sess:
+        user = db_sess.query(User).get(current_user.id)
+
+        favorite_count = db_sess.query(Favorite).filter(Favorite.user_id == user.id).count()
+
+        if request.method == 'POST':
+            file = request.files.get('profile_photo')
+            allowed_file = '.' in file.filename and file.filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+            if file and allowed_file:
+                filename = secure_filename(file.filename)
+                filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                file.save(filepath)
+
+                user.profile_photo = filepath
+                db_sess.commit()
+                photo_path = filepath
+
+        username = user.username
+        photo_path = photo_path or user.profile_photo
+
+    return render_template('profile.html', user=user, favorite_count=favorite_count, photo_path=photo_path)
 
 @app.route('/search_by_title', methods=['GET', 'POST'])
 def search_by_title():

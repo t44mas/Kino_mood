@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
+{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4 text-center">Профиль пользователя</h2>
+
+    <div class="text-center mb-4">
+        <img src="{{ photo_path }}" alt="Фото профиля"
+             style="width: 300px; height: 300px; border-radius: 50%; object-fit: cover;">
+
+    </div>
+
+    <form method="POST" enctype="multipart/form-data" action="{{ url_for('profile') }}" class="mb-4">
+        <div class="form-group">
+            <label for="profile_photo">Загрузить новое фото профиля:</label>
+            <input type="file" name="profile_photo" accept="image/*" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-primary mt-2">Загрузить</button>
+    </form>
+
+    <div class="mb-3">
+        <strong>Логин:</strong> {{ user.username }}
+    </div>
+    <div class="mb-3">
+        <strong>Email:</strong> {{ user.email }}
+    </div>
+    <div class="mb-3">
+        <strong>Избранных книг:</strong> {{ favorite_count }}
+    </div>
+
+    <div class="d-flex justify-content-center gap-3 mt-4">
+        <a href="{{ url_for('favourites_books') }}" class="btn btn-outline-primary">📚 Избранное</a>
+        <a href="{{ url_for('logout') }}" class="btn btn-outline-danger">🚪 Выйти</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+    /* Контейнер для профиля */
+
+</style>
+{% endblock %}

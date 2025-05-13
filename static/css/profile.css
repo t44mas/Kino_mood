@@ -1,0 +1,70 @@
+    .container {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+    }
+
+    h2 {
+        color: #333;
+        font-size: 2rem;
+        font-weight: 600;
+    }
+
+    .profile-img {
+        width: 150px;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 3px solid #ddd;
+    }
+
+    .form-group label {
+        font-weight: 500;
+        color: #555;
+    }
+
+    .form-control {
+        border-radius: 5px;
+        border: 1px solid #ddd;
+    }
+
+    .btn {
+        border-radius: 20px;
+        padding: 8px 20px;
+    }
+
+    .btn-outline-primary {
+        color: #007bff;
+        border-color: #007bff;
+    }
+
+    .btn-outline-primary:hover {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .btn-outline-danger {
+        color: #dc3545;
+        border-color: #dc3545;
+    }
+
+    .btn-outline-danger:hover {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .mb-3 {
+        font-size: 1rem;
+        color: #555;
+    }
+
+    .d-flex {
+        margin-top: 20px;
+    }
+
+    .container {
+        max-width: 600px;
+        margin: auto;
+        color: red;
+    }
