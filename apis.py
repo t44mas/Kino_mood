@@ -25,20 +25,8 @@ def get_books_by_genre(genre, amount=10):
         authors = ", ".join(volume.get("authors", []))
         description = volume.get("description", "")
         book_id = item.get("id", "")
-        db_sess = db_session.create_session()
-        overview = 0
-        if db_sess.query(Overview).filter(Overview.book_id == book_id).first():
-            suma = 0
-            count = 0
-            for ovrw in db_sess.query(Overview).filter(Overview.book_id == book_id).all():
-                suma += ovrw.rate
-                count += 1
-            if count:
-                overview = round(suma/count, 2)
-                print(overview)
-
+        overview = get_overview(book_id)
         results.append((image, title, authors, description, book_id, overview))
-
     return results
 
 
@@ -56,9 +44,10 @@ def get_book_by_id(volume_id):
     year_published = data.get("publishedDate", "")
     publisher = data.get("publisher", "")
     full_genre = data.get("categories", "")[0] if data.get("categories", "") else "None"
+    overview = get_overview(volume_id)
     results = {'title': title, 'image': image, 'authors': authors, 'description': description,
                'year_published': year_published,
-               'publisher': publisher, 'full_genre': full_genre}
+               'publisher': publisher, 'full_genre': full_genre, 'overview': overview}
     return results
 
 
@@ -79,7 +68,22 @@ def get_books_by_title(query, amount=10):
         description = volume.get("description", "")
         categories = ", ".join(volume.get("categories", []))
         book_id = item.get("id", "")
+        overview = get_overview(book_id)
 
-        results.append((image, title, authors, description, book_id, categories))
+        results.append((image, title, authors, description, book_id, categories, overview))
 
     return results
+
+
+def get_overview(book_id):
+    db_sess = db_session.create_session()
+    overview = 0
+    if db_sess.query(Overview).filter(Overview.book_id == book_id).first():
+        suma = 0
+        count = 0
+        for ovrw in db_sess.query(Overview).filter(Overview.book_id == book_id).all():
+            suma += ovrw.rate
+            count += 1
+        if count:
+            overview = round(suma / count, 2)
+    return overview

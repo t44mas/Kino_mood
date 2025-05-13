@@ -16,7 +16,7 @@ class Favorite(SqlAlchemyBase, SerializerMixin, UserMixin):
     short_description =sqlalchemy.Column(sqlalchemy.String, nullable=False)
     author = sqlalchemy.Column(sqlalchemy.String, nullable=False)
     poster_url = sqlalchemy.Column(sqlalchemy.String)
-    overview = sqlalchemy.Column(sqlalchemy.String)
+    overview = sqlalchemy.Column(sqlalchemy.NUMERIC)
     user_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("users.id"), nullable=False)
 
     liked = orm.relationship('User')

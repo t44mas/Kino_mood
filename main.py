@@ -10,6 +10,7 @@ from data.overviews import Overview
 from data.favorites import Favorite
 from form.register import RegisterForm
 from form.login import LoginForm
+from apis import get_overview
 
 app = Flask(__name__)
 login_manager = LoginManager()
@@ -80,14 +81,16 @@ def show_books(genre):
             user_id = current_user.get_id()
             book_ids = [book_id for (book_id,) in db_sess.query(Favorite.book_id).filter(Favorite.user_id == user_id).all()]
             if book_id not in book_ids:
+                overview = get_overview(book_id)
+                print(overview)
                 if len(book['description']) > 150:
                     favorite = Favorite(book_id=book_id, title=book['title'], poster_url=book['image'],
                                         user_id=current_user.get_id(),
-                                        overview=10, short_description=book['description'][:150], author=book['authors'])
+                                        overview=overview, short_description=book['description'][:150], author=book['authors'])
                 else:
                     favorite = Favorite(book_id=book_id, title=book['title'], poster_url=book['image'],
                                         user_id=current_user.get_id(),
-                                        overview=10, short_description=book['description'], author=book['authors'])
+                                        overview=overview, short_description=book['description'], author=book['authors'])
                 db_sess.add(favorite)
                 db_sess.commit()
                 # сделать чтобы message вылазила интерактивным окном И НЕ ПЕРЕЗАГРУЖАЛА СТРАНИЦУ везде
@@ -121,7 +124,6 @@ def show_books(genre):
 # Начал Можно ввести оценку книги, отзывы, где купить(ссылка на магазины)
 @app.route('/book/<book_id>')
 def book_detail(book_id):
-    print(book_id)
     book = get_book_by_id(book_id)
     print(book)
     return render_template('book_detail.html', book=book)
@@ -155,7 +157,7 @@ def favourites_books():
         'short_description': item.short_description,
         'author': item.author,
         'poster_url': item.poster_url,
-        'overview': item.overview
+        'overview': round(item.overview, 2)
     } for item in list1]
 
     return render_template('favourites_books.html', books=books)
@@ -219,14 +221,15 @@ def search_by_title():
         user_id = current_user.get_id()
         book_ids = [book_id for (book_id,) in db_sess.query(Favorite.book_id).filter(Favorite.user_id == user_id).all()]
         if book_id not in book_ids:
+            overview = get_overview(book_id)
             if len(book['description']) > 150:
                 favorite = Favorite(book_id=book_id, title=book['title'], poster_url=book['image'],
                                     user_id=current_user.get_id(),
-                                    overview=10, short_description=book['description'][:150], author=book['authors'])
+                                    overview=overview, short_description=book['description'][:150], author=book['authors'])
             else:
                 favorite = Favorite(book_id=book_id, title=book['title'], poster_url=book['image'],
                                     user_id=current_user.get_id(),
-                                    overview=10, short_description=book['description'], author=book['authors'])
+                                    overview=overview, short_description=book['description'], author=book['authors'])
             db_sess.add(favorite)
             db_sess.commit()
             # сделать чтобы message вылазила интерактивным окном И НЕ ПЕРЕЗАГРУЖАЛА СТРАНИЦУ везде
