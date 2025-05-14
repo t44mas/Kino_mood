@@ -107,3 +107,18 @@
 .rating-popup.hiding {
     animation: fadeOut 0.3s forwards;
 }
+
+.comments-section .comment {
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.comments-section .comment:hover {
+    background-color: #f0f0f0;
+}
+
+.comment textarea {
+    resize: vertical;
+}
