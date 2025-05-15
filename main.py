@@ -25,15 +25,42 @@ app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 last_location = {"lat": None, "lon": None}
 weather_key = "6df0831671dd861b4d734b18cf1831d9"
 books_key = 'AIzaSyCAbAWA_ksxmrana6fb26m8-ugT6QTcvyI'
-mood_books = {("sadness", "Clouds"): "drama",
-              ("joy", "Clouds"): "comedy",
-              ("love", "Clouds"): "Romance",
-              ("adventure", "Clouds"): "Adventure",
-              ("sadness", "Clear"): "Crime",
-              ("joy", "Clear"): "Satire",
-              ("love", "Clear"): "Fantasy romance",
-              ("adventure", "Clear"): "happy adventure",
-              }
+mood_books = {
+    # Радость
+    ("joy", "Clear"): "Satire",
+    ("joy", "Clouds"): "Comedy",
+    ("joy", "Rain"): "Feel-good",
+    ("joy", "Thunderstorm"): "Adventure",
+    ("joy", "Fog"): "Magical realism",
+
+    # Грусть
+    ("sadness", "Clear"): "Crime",
+    ("sadness", "Clouds"): "Drama",
+    ("sadness", "Rain"): "Tragedy",
+    ("sadness", "Thunderstorm"): "Psychological drama",
+    ("sadness", "Fog"): "Melodrama",
+
+    # Спокойствие
+    ("calm", "Clear"): "Philosophical",
+    ("calm", "Clouds"): "Classic literature",
+    ("calm", "Rain"): "Poetry",
+    ("calm", "Thunderstorm"): "Reflective essays",
+    ("calm", "Fog"): "Meditative fiction",
+
+    # Страх
+    ("fear", "Clear"): "Mystery",
+    ("fear", "Clouds"): "Detective",
+    ("fear", "Rain"): "Psychological thriller",
+    ("fear", "Thunderstorm"): "Thriller",
+    ("fear", "Fog"): "Noir",
+
+    # Гнев
+    ("anger", "Clear"): "Political fiction",
+    ("anger", "Clouds"): "Dystopian",
+    ("anger", "Rain"): "Dark fantasy",
+    ("anger", "Thunderstorm"): "Horror",
+    ("anger", "Fog"): "Revenge drama",
+}
 UPLOAD_FOLDER = 'static/uploads/'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -53,34 +80,40 @@ def logout():
     return redirect("/")
 
 
+last_location = {"lat": 0.0, "lon": 0.0}
+weather_key = '1c6e8a61e174ce1136affdebb97de726'
+
+
 @app.route("/save_location", methods=["POST"])
 def save_location():
+    global last_location
     data = request.get_json()
-    last_location["lat"] = data.get("lat")
-    last_location["lon"] = data.get("lon")
-    print(last_location)
-    choice_of_mood()
-    return jsonify({"status": "success", "data": last_location})
+    last_location = {'lat': data['lat'], 'lon': data['lon']}
+    return jsonify({"success": True})
 
 
 @app.route('/', methods=["GET", "POST"])
 def choice_of_mood():
-    with db_session.create_session() as db_sess:
-        users = db_sess.query(User).all()
-
-    response = requests.get(
-        f"https://api.openweathermap.org/data/2.5/weather?lat={last_location['lat']}&lon={last_location['lon']}&appid={weather_key}")
-    if response.status_code == 200:
-        json_response = response.json()
-        weather = json_response["weather"][0]['main']
-    else:
-        weather = "Clear"
+    try:
+        req = f"https://api.openweathermap.org/data/2.5/weather?lat={last_location['lat']}&lon={last_location['lon']}&appid={weather_key}&lang=ru"
+        print(req)
+        response = requests.get(req)
+        if response.status_code == 200:
+            json_response = response.json()
+            weather_main = json_response["weather"][0]['main']
+        else:
+            weather_main = "default"
+    except Exception as e:
+        print("Ошибка получения погоды:", e)
+        weather_main = "default"
 
     if request.method == 'POST':
         selected_mood = request.form.get('mood')
         if selected_mood:
-            genre = mood_books.get((selected_mood, weather), "drama")
-            return redirect(url_for('show_books', genre=genre))
+            print((selected_mood, weather_main))
+            genre = mood_books.get((selected_mood, weather_main), mood_books.get((selected_mood, "default"), "Drama"))
+        return redirect(url_for('show_books', genre=genre))
+
     return render_template('main.html', title='KinoMOOD')
 
 
@@ -123,6 +156,7 @@ def show_books(genre):
                 return jsonify({'success': True})
     return render_template('show_books.html', title="Найденные книги", params=params, genre=genre)
 
+
 # Начал Можно ввести оценку книги, отзывы, где купить(ссылка на магазины)
 @app.route('/book/<book_id>', methods=["GET", "POST"])
 def book_detail(book_id):
@@ -164,6 +198,7 @@ def book_detail(book_id):
                 db_sess.commit()
                 return jsonify({'success': True})
     return render_template('book_detail.html', book=book, book_id=book_id, comments=comments)
+
 
 @app.route('/favourites_books', methods=["GET", "POST"])
 @login_required
@@ -244,6 +279,7 @@ def register():
         return redirect('/')
     return render_template('register.html', form=form)
 
+
 @app.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
@@ -283,7 +319,8 @@ def search_by_title():
             book_id = request.form.get('book_id')
             book = get_book_by_id(book_id)
             user_id = current_user.get_id()
-            book_ids = [book_id for (book_id,) in db_sess.query(Favorite.book_id).filter(Favorite.user_id == user_id).all()]
+            book_ids = [book_id for (book_id,) in
+                        db_sess.query(Favorite.book_id).filter(Favorite.user_id == user_id).all()]
             if book_id not in book_ids:
                 overview = get_overview(book_id)
                 short_desc = book['description'][:150] if len(book['description']) > 150 else book['description']
