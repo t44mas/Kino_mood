@@ -4,6 +4,7 @@ from flask import Flask, render_template, redirect, jsonify, request, url_for, g
 import requests
 from flask_login import LoginManager, login_user, current_user, login_required, logout_user
 from bs4 import BeautifulSoup
+from pyexpat.errors import messages
 from sqlalchemy import desc
 from sqlalchemy.orm import joinedload
 from werkzeug.utils import secure_filename
@@ -41,11 +42,11 @@ mood_books = {
     ("sadness", "Fog"): "Melodrama",
 
     # Спокойствие
-    ("calm", "Clear"): "Philosophical",
-    ("calm", "Clouds"): "Classic literature",
+    ("calm", "Clear"): "Philosophy",
+    ("calm", "Clouds"): "Classics",
     ("calm", "Rain"): "Poetry",
-    ("calm", "Thunderstorm"): "Reflective essays",
-    ("calm", "Fog"): "Meditative fiction",
+    ("calm", "Thunderstorm"): "Essays",
+    ("calm", "Fog"): "Spirituality",
 
     # Страх
     ("fear", "Clear"): "Mystery",
@@ -55,7 +56,7 @@ mood_books = {
     ("fear", "Fog"): "Noir",
 
     # Гнев
-    ("anger", "Clear"): "Political fiction",
+    ("anger", "Clear"): "Politics",
     ("anger", "Clouds"): "Dystopian",
     ("anger", "Rain"): "Dark fantasy",
     ("anger", "Thunderstorm"): "Horror",
@@ -112,8 +113,9 @@ def choice_of_mood():
         if selected_mood:
             print((selected_mood, weather_main))
             genre = mood_books.get((selected_mood, weather_main), mood_books.get((selected_mood, "default"), "Drama"))
-        return redirect(url_for('show_books', genre=genre))
-
+            return redirect(url_for('show_books', genre=genre))
+        else:
+            return render_template('main.html', title='KinoMOOD', message='Выберете книгу')
     return render_template('main.html', title='KinoMOOD')
 
 
