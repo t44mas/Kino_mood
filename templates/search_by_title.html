@@ -6,6 +6,7 @@
 
 {% block content %}
 <div class="container py-5">
+
     <h2 class="text-center mb-4">Результаты поиска для: <strong>"{{ query }}"</strong></h2>
 
     {% if message %}
@@ -17,13 +18,12 @@
         {% for book in params %}
         <div class="col-sm-6 col-md-4 col-lg-3 d-flex align-items-stretch mb-4">
             <div class="card">
-                <img src="{{ book[0] }}"
-                     class="card-img-top"
-                     alt="{{ book[1] }}">
+                <img src="{{ book[0] }}" class="card-img-top" alt="{{ book[1] }}">
 
                 <div class="card-body d-flex flex-column">
                     <h5 class="card-title">{{ book[1] }}</h5>
-                    <p class="card-text"><i class="fa-solid fa-star"></i>{{ book[6] }}</p>
+                    <p class="card-text"><i class="fa-solid fa-star"></i> {{ book[6] }}</p>
+
                     {% if book[2] %}
                     <p class="card-text"><strong>Автор:</strong> {{ book[2] }}</p>
                     {% endif %}
@@ -39,11 +39,41 @@
                     </a>
 
                     {% if current_user.is_authenticated %}
-                    <form method="post" class="mt-2">
-                        <button type="submit" name="book_id" value="{{ book[4] }}" class="btn btn-outline-danger w-100">
+                    <form action="{{ url_for('add_to_favorites') }}" method="post" class="mt-2">
+                        <input type="hidden" name="book_id" value="{{ book[4] }}">
+                        <button type="submit" class="btn btn-outline-danger w-100">
                             <i class="fas fa-heart"></i> Добавить в избранное
                         </button>
                     </form>
+
+                    <div class="rating-block mt-2">
+                        <button class="open-rating-btn btn btn-outline-warning w-100">
+                            <i class="fa-solid fa-star"></i> Оценить книгу
+                        </button>
+                        <div class="overlay">
+                            <div class="rating-popup">
+                                <span class="close-btn">&times;</span>
+                                <h2>Как вам эта книга?</h2>
+                                <p>Пожалуйста, оцените её по 5-звёздочной шкале</p>
+
+                                <div class="stars">
+                                    <div class="star" data-rating="1">★</div>
+                                    <div class="star" data-rating="2">★</div>
+                                    <div class="star" data-rating="3">★</div>
+                                    <div class="star" data-rating="4">★</div>
+                                    <div class="star" data-rating="5">★</div>
+                                </div>
+
+                                <p class="selected-rating-text">Выберите количество звёзд</p>
+                                <button
+                                    class="submit-rating"
+                                    data-book-id="{{ book[4] }}"
+                                    data-genre="{{ book[5] or 'Жанр не указан' }}">
+                                    Отправить оценку
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                     {% endif %}
                 </div>
             </div>
@@ -54,4 +84,6 @@
     <p class="text-center text-muted">Ничего не найдено по вашему запросу.</p>
     {% endif %}
 </div>
+
+<script src="{{ url_for('static', filename='js/rate_book.js') }}"></script>
 {% endblock %}

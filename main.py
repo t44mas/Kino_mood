@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask, render_template, redirect, jsonify, request, url_for, g
+from flask import Flask, render_template, redirect, jsonify, request, url_for, g, flash
 import requests
 from flask_login import LoginManager, login_user, current_user, login_required, logout_user
 from bs4 import BeautifulSoup
@@ -9,7 +9,7 @@ from sqlalchemy import desc
 from sqlalchemy.orm import joinedload
 from werkzeug.utils import secure_filename
 
-from apis import get_books_by_genre, get_book_by_id, get_books_by_title
+from apis import get_books_by_genre, get_book_by_id, get_books_by_title, get_books_by_author
 from data import db_session
 from data.users import User
 from data.overviews import Overview
@@ -119,44 +119,72 @@ def choice_of_mood():
     return render_template('main.html', title='KinoMOOD')
 
 
-@app.route('/books/<genre>', methods=["GET", "POST"])
+@app.route('/books/<genre>', methods=["GET"])
 def show_books(genre):
     params = get_books_by_genre(genre, amount=3)
-    if request.method == 'POST':
-        if request.form.get('book_id'):
-            with db_session.create_session() as db_sess:
-                book_id = request.form.get('book_id')
-                book = get_book_by_id(book_id)
-                user_id = current_user.get_id()
-                book_ids = [book_id for (book_id,) in
-                            db_sess.query(Favorite.book_id).filter(Favorite.user_id == user_id).all()]
-                if book_id not in book_ids:
-                    overview = get_overview(book_id)
-                    short_desc = book['description'][:150] if len(book['description']) > 150 else book['description']
-                    favorite = Favorite(book_id=book_id, title=book['title'], poster_url=book['image'],
-                                        user_id=current_user.get_id(),
-                                        overview=overview, short_description=short_desc,
-                                        author=book['authors'])
-                    db_sess.add(favorite)
-                    db_sess.commit()
-                    return render_template('show_books.html', title="Найденные книги", params=params, genre=genre,
-                                           message='Книга успешно добавлена')
-                else:
-                    return render_template('show_books.html', title="Найденные книги", params=params, genre=genre,
-                                           message='Книга уже в Избранном')
+    return render_template(
+        'show_books.html',
+        title="Найденные книги",
+        params=params,
+        genre=genre
+    )
+
+
+@app.route('/add_to_favorites', methods=['POST'])
+@login_required
+def add_to_favorites():
+    book_id = request.form.get('book_id')
+    if not book_id:
+        return redirect(request.referrer or url_for(''))
+
+    with db_session.create_session() as db_sess:
+        user_id = current_user.get_id()
+        book = get_book_by_id(book_id)
+
+        if not book:
+            return redirect(request.referrer or url_for('index'))
+
+        existing = db_sess.query(Favorite).filter_by(user_id=user_id, book_id=book_id).first()
+        if existing:
+            flash('Книга уже в избранном', 'info')
         else:
-            with db_session.create_session() as db_sess:
-                user_id = int(current_user.get_id())
-                data = request.get_json()
-                book_id = data.get('book_ID')
-                rating = data.get('rating')
-                if not book_id or not rating:
-                    return jsonify({'success': False, 'error': 'Missing book_ID or rating'}), 400
-                overview = Overview(rate=rating, user_id=user_id, book_id=book_id)
-                db_sess.add(overview)
-                db_sess.commit()
-                return jsonify({'success': True})
-    return render_template('show_books.html', title="Найденные книги", params=params, genre=genre)
+            overview = get_overview(book_id)
+            short_desc = book['description'][:150] if len(book['description']) > 150 else book['description']
+            favorite = Favorite(
+                book_id=book_id,
+                title=book['title'],
+                poster_url=book['image'],
+                user_id=user_id,
+                overview=overview,
+                short_description=short_desc,
+                author=book['authors']
+            )
+            db_sess.add(favorite)
+            db_sess.commit()
+            flash('Книга успешно добавлена в избранное', 'success')
+
+    return redirect(request.referrer or url_for(''))
+
+
+@app.route('/rate_book', methods=['POST'])
+@login_required
+def rate_book():
+    with db_session.create_session() as db_sess:
+        user_id = int(current_user.get_id())
+        data = request.get_json()
+        print(data)
+        book_id = data.get('book_ID')
+        rating = data.get('rating')
+        print(book_id)
+        print(rating)
+        if not book_id or not rating:
+            return jsonify({'success': False, 'error': 'Missing book_ID or rating'}), 400
+
+        overview = Overview(rate=rating, user_id=user_id, book_id=book_id)
+        db_sess.add(overview)
+        db_sess.commit()
+
+        return jsonify({'success': True})
 
 
 # Начал Можно ввести оценку книги, отзывы, где купить(ссылка на магазины)
@@ -165,7 +193,6 @@ def book_detail(book_id):
     book = get_book_by_id(book_id)
     with db_session.create_session() as db_sess:
         comments = db_sess.query(Comment).options(joinedload(Comment.user)).filter(Comment.book_id == book_id).all()
-
         if request.method == 'POST':
             if request.form.get('book_fav'):
                 book_id = request.form.get('book_fav')
@@ -182,6 +209,7 @@ def book_detail(book_id):
                                         author=book['authors'])
                     db_sess.add(favorite)
                     db_sess.commit()
+
                 return render_template('book_detail.html', book=book, book_id=book_id, comments=comments)
             elif request.form.get('comment_text'):
                 new_comment = Comment(text=request.form.get('comment_text'), user_id=current_user.id, book_id=book_id)
@@ -200,6 +228,15 @@ def book_detail(book_id):
                 db_sess.commit()
                 return jsonify({'success': True})
     return render_template('book_detail.html', book=book, book_id=book_id, comments=comments)
+
+
+@app.route('/author', defaults={'author': None}, methods=['GET'])
+@app.route('/author/<author>', methods=['GET'])
+def search_by_author(author):
+    if not author:
+        author = request.args.get('author', '').strip()
+    books = get_books_by_author(author, amount=3)
+    return render_template('search_by_author.html', params=books, query=author)
 
 
 @app.route('/favourites_books', methods=["GET", "POST"])
@@ -309,39 +346,19 @@ def profile():
     return render_template('profile.html', user=user, favorite_count=favorite_count, photo_path=photo_path)
 
 
-@app.route('/search_by_title', methods=['GET', 'POST'])
+@app.route('/search_by_title')
 def search_by_title():
     query = request.args.get('q', '').strip()
     if not query:
         return render_template('search_by_title.html', books=[], query=query, message="Введите запрос")
 
     books = get_books_by_title(query, amount=3)
-    if request.method == 'POST':
-        with db_session.create_session() as db_sess:
-            book_id = request.form.get('book_id')
-            book = get_book_by_id(book_id)
-            user_id = current_user.get_id()
-            book_ids = [book_id for (book_id,) in
-                        db_sess.query(Favorite.book_id).filter(Favorite.user_id == user_id).all()]
-            if book_id not in book_ids:
-                overview = get_overview(book_id)
-                short_desc = book['description'][:150] if len(book['description']) > 150 else book['description']
-                favorite = Favorite(book_id=book_id, title=book['title'], poster_url=book['image'],
-                                    user_id=current_user.get_id(),
-                                    overview=overview, short_description=short_desc,
-                                    author=book['authors'])
-                db_sess.add(favorite)
-                db_sess.commit()
-                return render_template('search_by_title.html', title="Найденные книги", params=books, query=query,
-                                       message='Книга успешно добавлена')
-            else:
-                return render_template('search_by_title.html', title="Найденные книги", params=books, query=query,
-                                       message='Книга уже в Избранном')
 
     if not books:
         return render_template('search_by_title.html', books=[], query=query, message="Ничего не найдено")
 
-    return render_template('search_by_title.html', params=books, query=query)
+    return render_template('search_by_title.html', title="Найденные книги", params=books, query=query)
+
 
 
 def main():

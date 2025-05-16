@@ -1,5 +1,5 @@
 
-document.querySelectorAll('.card').forEach(card => {
+document.querySelectorAll('.rating-block').forEach(card => {
   const openBtn = card.querySelector('.open-rating-btn');
   const closeBtn = card.querySelector('.close-btn');
   const overlay = card.querySelector('.overlay');
@@ -59,11 +59,10 @@ document.querySelectorAll('.card').forEach(card => {
         }
 
        // Получаем ID книги
-    const book = submitBtn.value.split(' ');
-    const bookId = book[0];
-    const genre = book[1];
+    const bookId = submitBtn.getAttribute('data-book-id');
+    const genre = submitBtn.getAttribute('data-genre');
     // Отправляем данные на сервер
-    fetch('/books/'+genre, {
+    fetch('/rate_book', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

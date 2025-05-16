@@ -87,3 +87,27 @@ def get_overview(book_id):
         if count:
             overview = round(suma / count, 2)
     return overview
+
+
+def get_books_by_author(author, amount=10):
+    url = f"https://www.googleapis.com/books/v1/volumes?q=inauthor:{author}&maxResults={amount}&langRestrict=ru&key={API_KEY}"
+    response = requests.get(url)
+    if response.status_code != 200:
+        return []
+
+    data = response.json().get("items", [])
+
+    results = []
+    for item in data:
+        volume = item.get("volumeInfo", {})
+        image = volume.get("imageLinks", {}).get("thumbnail", "")
+        title = volume.get("title", "Без названия")
+        authors = ", ".join(volume.get("authors", []))
+        description = volume.get("description", "")
+        categories = ", ".join(volume.get("categories", []))
+        book_id = item.get("id", "")
+        overview = get_overview(book_id)
+
+        results.append((image, title, authors, description, book_id, categories, overview))
+
+    return results

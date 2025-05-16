@@ -1,27 +1,41 @@
 {% extends "base.html" %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/show_books.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/search_by_title.css') }}">
 {% endblock %}
 
 {% block content %}
 <div class="container py-5">
-    <h2 class="text-center mb-4">Книги по вашему настроению</strong></h2>
+    <form action="{{ url_for('search_by_author') }}" method="GET" class="mb-4">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <label for="author" class="form-label">Введите имя автора:</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="author" name="author"
+                           placeholder="Например: Лев Толстой" value="{{ query }}">
+                    <button class="btn btn-outline-primary" type="submit">Поиск</button>
+                </div>
+            </div>
+        </div>
+    </form>
 
+    <h2 class="text-center mb-4">Работы <strong>"{{ query }}"</strong></h2>
 
+    {% if message %}
+    <div class="alert alert-info text-center">{{ message }}</div>
+    {% endif %}
 
     {% if params %}
     <div class="row justify-content-center">
         {% for book in params %}
         <div class="col-sm-6 col-md-4 col-lg-3 d-flex align-items-stretch mb-4">
             <div class="card">
-                <img src="{{ book[0] }}"
-                     class="card-img-top"
-                     alt="{{ book[1] }}">
+                <img src="{{ book[0] }}" class="card-img-top" alt="{{ book[1] }}">
 
                 <div class="card-body d-flex flex-column">
                     <h5 class="card-title">{{ book[1] }}</h5>
-                    <p class="card-text"><i class="fa-solid fa-star"></i>{{ book[5] }}</p>
+                    <p class="card-text"><i class="fa-solid fa-star"></i> {{ book[6] }}</p>
+
                     {% if book[2] %}
                     <p class="card-text"><strong>Автор:</strong> {{ book[2] }}</p>
                     {% endif %}
@@ -30,21 +44,26 @@
                     <p class="card-text">{{ book[3][:150] }}{% if book[3]|length > 150 %}...{% endif %}</p>
                     {% endif %}
 
-                    <span class="badge badge-genre mt-auto">{{ genre or 'Жанр не указан' }}</span>
+                    <span class="badge badge-genre mt-auto">{{ book[5] or 'Жанр не указан' }}</span>
 
                     <a href="{{ url_for('book_detail', book_id=book[4]) }}" class="btn btn-primary mt-3">
                         Подробнее <i class="fas fa-book-open ml-2"></i>
                     </a>
 
                     {% if current_user.is_authenticated %}
+                    <!-- Добавление в избранное -->
                     <form action="{{ url_for('add_to_favorites') }}" method="post" class="mt-2">
                         <input type="hidden" name="book_id" value="{{ book[4] }}">
                         <button type="submit" class="btn btn-outline-danger w-100">
                             <i class="fas fa-heart"></i> Добавить в избранное
                         </button>
                     </form>
-                    <div class="rating-block">
-                        <button class="open-rating-btn"><i class="fa-solid fa-star"></i> Оценить книгу</button>
+
+                    <!-- Оценка книги -->
+                    <div class="rating-block mt-2">
+                        <button class="open-rating-btn btn btn-outline-warning w-100">
+                            <i class="fa-solid fa-star"></i> Оценить книгу
+                        </button>
                         <div class="overlay">
                             <div class="rating-popup">
                                 <span class="close-btn">&times;</span>
@@ -61,10 +80,9 @@
 
                                 <p class="selected-rating-text">Выберите количество звёзд</p>
                                 <button
-                                        class="submit-rating"
-                                        id="submitRating"
-                                        data-book-id="{{ book[4] }}"
-                                        data-genre="{{ genre }}">
+                                    class="submit-rating"
+                                    data-book-id="{{ book[4] }}"
+                                    data-genre="{{ book[5] or 'Жанр не указан' }}">
                                     Отправить оценку
                                 </button>
                             </div>
@@ -75,13 +93,11 @@
             </div>
         </div>
         {% endfor %}
-        <button class="btn_newbooks" onclick="history.go(0)">
-            Найти еще книги
-        </button>
     </div>
     {% else %}
     <p class="text-center text-muted">Ничего не найдено по вашему запросу.</p>
     {% endif %}
-    <script src="{{ url_for('static', filename='js/rate_book.js') }}"></script>
 </div>
+
+<script src="{{ url_for('static', filename='js/rate_book.js') }}"></script>
 {% endblock %}
