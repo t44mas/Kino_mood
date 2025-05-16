@@ -16,84 +16,88 @@
 <div class="alert alert-info text-center">{{ message }}</div>
 {% endif %}
 <h1> Выбери своё настроение — найди идеальную книгу! </h1>
+<h3> Книги подбираются по твоему настроению и погоде вокруг </h3>
 <p class="h1"> Как ты себя чувствуешь? </p>
 <div class="container py-5">
     <h2 class="text-center mb-4">Выберите ваше настроение</h2>
     <form id="moodForm" method="POST">
-        <div class="row d-flex justify-content-center">
-            <!-- Радость -->
-            <div class="col-md-3 mb-4">
-                <div class="mood-card">
-                    <input type="radio" id="joy" name="mood" value="joy">
-                    <label for="joy">
-                        <div class="card-body">
-                            <i class="fa-regular fa-face-smile-beam" style="font-size: 3rem; color: #FFD43B;"></i>
-                            <h5 class="card-title mt-3">Радость</h5>
-                            <p class="card-text">Веселье и энтузиазм</p>
-                        </div>
-                    </label>
+        <div class="row d-flex justify-content-center align-items-stretch">
+            <!-- Эмоции -->
+            <div class="d-flex flex-wrap justify-content-center">
+                <!-- Радость -->
+                <div class="col-md-3 d-flex mb-4">
+                    <div class="mood-card w-100">
+                        <input type="radio" id="joy" name="mood" value="joy">
+                        <label for="joy">
+                            <div class="card-body text-center">
+                                <i class="fa-regular fa-face-smile-beam" style="font-size: 3rem; color: #FFD43B;"></i>
+                                <h5 class="card-title mt-3">Радость</h5>
+                                <p class="card-text">Веселье и энтузиазм</p>
+                            </div>
+                        </label>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Грусть -->
-            <div class="col-md-3 mb-4">
-                <div class="mood-card">
-                    <input type="radio" id="sadness" name="mood" value="sadness">
-                    <label for="sadness">
-                        <div class="card-body">
-                            <i class="fa-regular fa-face-sad-tear" style="font-size: 3rem; color: #74C0FC;"></i>
-                            <h5 class="card-title mt-3">Грусть</h5>
-                            <p class="card-text">Тревога и печаль</p>
-                        </div>
-                    </label>
+                <!-- Грусть -->
+                <div class="col-md-3 d-flex mb-4">
+                    <div class="mood-card w-100">
+                        <input type="radio" id="sadness" name="mood" value="sadness">
+                        <label for="sadness">
+                            <div class="card-body text-center">
+                                <i class="fa-regular fa-face-sad-tear" style="font-size: 3rem; color: #74C0FC;"></i>
+                                <h5 class="card-title mt-3">Грусть</h5>
+                                <p class="card-text">Тревога и печаль</p>
+                            </div>
+                        </label>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Спокойствие -->
-            <div class="col-md-3 mb-4">
-                <div class="mood-card">
-                    <input type="radio" id="calm" name="mood" value="calm">
-                    <label for="calm">
-                        <div class="card-body">
-                            <i class="bi bi-cloud-sun" style="font-size: 3rem; color: #20c997;"></i>
-                            <h5 class="card-title mt-3">Спокойствие</h5>
-                            <p class="card-text">Умиротворение и баланс</p>
-                        </div>
-                    </label>
+                <!-- Спокойствие -->
+                <div class="col-md-3 d-flex mb-4">
+                    <div class="mood-card w-100">
+                        <input type="radio" id="calm" name="mood" value="calm">
+                        <label for="calm">
+                            <div class="card-body text-center">
+                                <i class="bi bi-cloud-sun" style="font-size: 3rem; color: #20c997;"></i>
+                                <h5 class="card-title mt-3">Спокойствие</h5>
+                                <p class="card-text">Умиротворение и баланс</p>
+                            </div>
+                        </label>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Страх / Волнение -->
-            <div class="col-md-3 mb-4">
-                <div class="mood-card">
-                    <input type="radio" id="fear" name="mood" value="fear">
-                    <label for="fear">
-                        <div class="card-body">
-                            <i class="bi bi-exclamation-triangle-fill" style="font-size: 3rem; color: #dc3545;"></i>
-                            <h5 class="card-title mt-3">Волнение</h5>
-                            <p class="card-text">Страх, тревожность</p>
-                        </div>
-                    </label>
+                <!-- Страх -->
+                <div class="col-md-3 d-flex mb-4">
+                    <div class="mood-card w-100">
+                        <input type="radio" id="fear" name="mood" value="fear">
+                        <label for="fear">
+                            <div class="card-body text-center">
+                                <i class="bi bi-exclamation-triangle-fill" style="font-size: 3rem; color: #dc3545;"></i>
+                                <h5 class="card-title mt-3">Волнение</h5>
+                                <p class="card-text">Страх, тревожность</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Гнев -->
+                <div class="col-md-3 d-flex mb-4">
+                    <div class="mood-card w-100">
+                        <input type="radio" id="anger" name="mood" value="anger">
+                        <label for="anger">
+                            <div class="card-body text-center">
+                                <i class="bi bi-lightning-fill" style="font-size: 3rem; color: #e03131;"></i>
+                                <h5 class="card-title mt-3">Гнев</h5>
+                                <p class="card-text">Раздражение, ярость</p>
+                            </div>
+                        </label>
+                    </div>
                 </div>
             </div>
-            <!-- Гнев -->
-            <div class="col-md-3 mb-4">
-                <div class="mood-card">
-                    <input type="radio" id="anger" name="mood" value="anger">
-                    <label for="anger">
-                        <div class="card-body">
-                            <i class="bi bi-lightning-fill" style="font-size: 3rem; color: #e03131;"></i>
-                            <h5 class="card-title mt-3">Гнев</h5>
-                            <p class="card-text">Раздражение, ярость</p>
-                        </div>
-                    </label>
-                </div>
+            <div class="w-100 text-center mt-3">
+                <button type="submit" class="btn btn-success px-4 py-2">Найти книги</button>
             </div>
-            <button type="submit" class="btn btn-success">
-                Найти книги
-            </button>
         </div>
-
     </form>
 </div>
 </body>

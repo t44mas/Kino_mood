@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="my-4 text-center">📚 История просмотренных книг</h2>
+
+{% if params %}
+    <div class="text-center mb-4">
+        <form method="POST" onsubmit="return confirm('Вы уверены, что хотите очистить историю?');">
+            <button type="submit" class="btn btn-danger">🗑️ Очистить историю</button>
+        </form>
+    </div>
+{% endif %}
+
+{% if not params %}
+    <div class="alert alert-info text-center">Вы пока не просматривали книги.</div>
+{% else %}
+    <div class="row">
+        {% for book in params|reverse %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                {% if book.poster_url %}
+                <img src="{{ book.poster_url }}" class="card-img-top" alt="Обложка книги" style="height: 300px; object-fit: cover;">
+                {% else %}
+                <div class="card-img-top d-flex align-items-center justify-content-center bg-light" style="height: 300px;">
+                    <span class="text-muted">Нет обложки</span>
+                </div>
+                {% endif %}
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">{{ book.title or 'Без названия' }}</h5>
+                    <p class="card-text text-muted mb-1">Автор: {{ book.author or 'Неизвестен' }}</p>
+                    <p class="card-text"><small class="text-secondary">Просмотрено: {{ book.viewed_at.strftime('%d.%m.%Y %H:%M') }}</small></p>
+                    <a href="/book/{{ book.book_id }}" class="btn btn-outline-primary mt-auto">Подробнее</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% endif %}
+{% endblock %}

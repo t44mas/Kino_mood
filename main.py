@@ -15,6 +15,7 @@ from data.users import User
 from data.overviews import Overview
 from data.favorites import Favorite
 from data.comments import Comment
+from data.viewed_books import ViewedBook
 from form.register import RegisterForm
 from form.login import LoginForm
 from apis import get_overview
@@ -192,6 +193,23 @@ def rate_book():
 def book_detail(book_id):
     book = get_book_by_id(book_id)
     with db_session.create_session() as db_sess:
+        if current_user.is_authenticated:
+            all_viewed_books_query = db_sess.query(ViewedBook).filter(ViewedBook.user_id == current_user.id).order_by(
+                ViewedBook.viewed_at)
+            all_viewed_books = all_viewed_books_query.all()
+            if not all_viewed_books or book_id != all_viewed_books[-1].book_id.strip():
+                view_book = ViewedBook(
+                    book_id=book_id,
+                    title=book['title'],
+                    poster_url=book['image'],
+                    user_id=current_user.get_id(),
+                    author=book['authors']
+                )
+                if len(all_viewed_books) >= 5:
+                    last_viewed = all_viewed_books[0]
+                    db_sess.delete(last_viewed)
+                db_sess.add(view_book)
+                db_sess.commit()
         comments = db_sess.query(Comment).options(joinedload(Comment.user)).filter(Comment.book_id == book_id).all()
         if request.method == 'POST':
             if request.form.get('book_fav'):
@@ -230,6 +248,18 @@ def book_detail(book_id):
     return render_template('book_detail.html', book=book, book_id=book_id, comments=comments)
 
 
+@app.route('/history', methods=["GET", "POST"])
+def history():
+    with db_session.create_session() as db_sess:
+        if request.method == "POST":
+            db_sess.query(ViewedBook).filter(ViewedBook.user_id == current_user.id).delete()
+            db_sess.commit()
+            return redirect('/history')
+        view_books = db_sess.query(ViewedBook).filter(ViewedBook.user_id == current_user.id).order_by(
+            ViewedBook.viewed_at).all()
+        return render_template('history.html', params=view_books)
+
+
 @app.route('/author', defaults={'author': None}, methods=['GET'])
 @app.route('/author/<author>', methods=['GET'])
 def search_by_author(author):
@@ -260,7 +290,7 @@ def favourites_books():
         elif sort_by == 'author':
             query = query.order_by(Favorite.author)
         elif sort_by == 'overview':
-            query = query.order_by(Favorite.overview)
+            query = query.order_by(Favorite.overview.desc())
         list1 = query.all()
         books = [{
             'book_id': item.book_id,
@@ -358,7 +388,6 @@ def search_by_title():
         return render_template('search_by_title.html', books=[], query=query, message="Ничего не найдено")
 
     return render_template('search_by_title.html', title="Найденные книги", params=books, query=query)
-
 
 
 def main():
