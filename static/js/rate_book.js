@@ -1,5 +1,10 @@
-
-document.querySelectorAll('.rating-block').forEach(card => {
+let cardContainer = '.card';
+let moreCards = true;
+if (document.querySelectorAll('.card').length === 0) {
+    cardContainer = '.rating-block';
+    moreCards = false;
+}
+document.querySelectorAll(cardContainer).forEach(card => {
   const openBtn = card.querySelector('.open-rating-btn');
   const closeBtn = card.querySelector('.close-btn');
   const overlay = card.querySelector('.overlay');
@@ -76,6 +81,14 @@ document.querySelectorAll('.rating-block').forEach(card => {
     .then(data => {
         if (data.success) {
             alert('Спасибо за вашу оценку!');
+            let new_rating;
+            if (moreCards){
+                new_rating = card.querySelector('.card-rating');
+            }
+            else {
+                new_rating = document.querySelector('.card-rating');
+            }
+            new_rating.innerHTML  = '<p class="card-rating"><i class="fa-solid fa-star"></i>' + data.new_rating + '</p>';
             closePopup();
         } else {
             alert('Ошибка при сохранении оценки: ' + data.error);

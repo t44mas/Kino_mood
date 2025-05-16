@@ -21,7 +21,7 @@
 
                 <div class="card-body d-flex flex-column">
                     <h5 class="card-title">{{ book[1] }}</h5>
-                    <p class="card-text"><i class="fa-solid fa-star"></i>{{ book[5] }}</p>
+                    <p class="card-rating"><i class="fa-solid fa-star"></i>{{ book[5] }}</p>
                     {% if book[2] %}
                     <p class="card-text"><strong>Автор:</strong> {{ book[2] }}</p>
                     {% endif %}
@@ -43,7 +43,7 @@
                             <i class="fas fa-heart"></i> Добавить в избранное
                         </button>
                     </form>
-                    <div class="rating-block">
+                        <div class="rating-block">
                         <button class="open-rating-btn"><i class="fa-solid fa-star"></i> Оценить книгу</button>
                         <div class="overlay">
                             <div class="rating-popup">

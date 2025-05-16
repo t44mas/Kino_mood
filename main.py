@@ -184,8 +184,8 @@ def rate_book():
         overview = Overview(rate=rating, user_id=user_id, book_id=book_id)
         db_sess.add(overview)
         db_sess.commit()
-
-        return jsonify({'success': True})
+        new_rate = get_overview(book_id)
+        return jsonify({'success': True, 'new_rating': new_rate})
 
 
 # Начал Можно ввести оценку книги, отзывы, где купить(ссылка на магазины)

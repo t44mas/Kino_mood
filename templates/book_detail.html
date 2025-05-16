@@ -14,7 +14,7 @@
         <div class="col-md-8">
             <div class="book-header">
                 <h2 class="mb-1">{{ book['title'] }}</h2>
-                <p class="card-text"><i class="fa-solid fa-star"></i>{{ book['overview'] }}</p>
+                <p class="card-rating"><i class="fa-solid fa-star"></i>{{ book['overview'] }}</p>
                 {% if book['year_published'] %}
                 <p class="text-muted mb-0">({{ book['year_published'] }})</p>
                 {% endif %}
