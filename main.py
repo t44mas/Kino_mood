@@ -15,6 +15,7 @@ from data.users import User
 from data.overviews import Overview
 from data.favorites import Favorite
 from data.comments import Comment
+from data.viewed_books import ViewedBook
 from form.register import RegisterForm
 from form.login import LoginForm
 from apis import get_overview
