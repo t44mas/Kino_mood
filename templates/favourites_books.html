@@ -6,12 +6,16 @@
 
 {% block content %}
 <div class="container py-5">
-    <h1 class="text-center mb-5">💖 Ваши избранные книги</h1>
+    {% if username %}
+        <h1 class="text-center mb-5">💖 Избранные книги {{username}}</h1>
+    {% else %}
+        <h1 class="text-center mb-5">💖 Ваши избранные книги</h1>
+    {% endif %}
 
     {% if books %}
         <form method="get" class="mb-3">
         <select name="sort_by" onchange="this.form.submit()" class="form-select">
-            <option value="title" {% if request.args.get('sort_by') == 'title' %}selected{% endif %}>По названию</option>
+            <option value="title" {% if request.args.get('sort_by') == 'title' %}selected{% endif %}По названию</option>
             <option value="author" {% if request.args.get('sort_by') == 'author' %}selected{% endif %}>По автору</option>
             <option value="overview" {% if request.args.get('sort_by') == 'overview' %}selected{% endif %}>По оценке</option>
         </select>
@@ -34,10 +38,12 @@
                        class="btn btn-outline-primary btn-sm">
                         Подробнее
                     </a>
-                    <form method="post">
-                        <input type="hidden" name="book_id" value="{{ book['book_id'] }}">
-                        <button type="submit" class="btn btn-outline-danger btn-sm btn-remove">Удалить</button>
-                    </form>
+                    {% if not username %}
+                        <form method="post">
+                            <input type="hidden" name="book_id" value="{{ book['book_id'] }}">
+                            <button type="submit" class="btn btn-outline-danger btn-sm btn-remove">Удалить</button>
+                        </form>
+                    {% endif %}
                 </div>
             </div>
         </div>

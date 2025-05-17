@@ -301,6 +301,33 @@ def favourites_books():
     return render_template('favourites_books.html', books=books)
 
 
+@app.route('/favourites_books/<username>', methods=["GET"])
+@login_required
+def user_favourites_books(username):
+    with db_session.create_session() as db_sess:
+        user = db_sess.query(User).filter(User.username == username).first()
+        sort_by = request.args.get('sort_by', 'title')
+        user_id = user.id
+        query = db_sess.query(Favorite).filter(Favorite.user_id == user_id)
+        if sort_by == 'title':
+            query = query.order_by(Favorite.title)
+        elif sort_by == 'author':
+            query = query.order_by(Favorite.author)
+        elif sort_by == 'overview':
+            query = query.order_by(Favorite.overview.desc())
+        list1 = query.all()
+        books = [{
+            'book_id': item.book_id,
+            'title': item.title,
+            'short_description': item.short_description,
+            'author': item.author,
+            'poster_url': item.poster_url,
+            'overview': round(item.overview, 2)
+        } for item in list1]
+
+    return render_template('favourites_books.html', books=books, username=username)
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
@@ -367,10 +394,23 @@ def profile():
                 db_sess.commit()
                 photo_path = filepath
 
-        username = user.username
         photo_path = photo_path or user.profile_photo
+        print(photo_path)
 
     return render_template('profile.html', user=user, favorite_count=favorite_count, photo_path=photo_path)
+
+
+@app.route('/profile/<username>', methods=['GET'])
+@login_required
+def userprofile(username):
+    photo_path = None
+    with db_session.create_session() as db_sess:
+        user = db_sess.query(User).filter(User.username == username).first()
+        favorite_count = db_sess.query(Favorite).filter(Favorite.user_id == user.id).count()
+        username = user.username
+        photo_path = url_for('static', filename=user.profile_photo[7:])
+    print(photo_path)
+    return render_template('userprofile.html', username=username, favorite_count=favorite_count, photo_path=photo_path)
 
 
 @app.route('/search_by_title')

@@ -118,7 +118,7 @@
                          style="object-fit: cover; border: 2px solid #ccc;">
                     <div class="flex-grow-1">
                         <div class="d-flex justify-content-between">
-                            <strong class="text-dark">{{ comment.user.username }}</strong>
+                            <a href="../profile/{{comment.user.username}}"> <strong class="text-dark">{{ comment.user.username }}</strong> </a>
                             <small class="text-muted">{{ comment.time_stamp.strftime('%d.%m.%Y %H:%M') }}</small>
                         </div>
                         <p class="mb-0 mt-2">{{ comment.text }}</p>
