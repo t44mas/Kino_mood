@@ -7,7 +7,7 @@ from data.overviews import Overview
 API_KEY = "AIzaSyCAbAWA_ksxmrana6fb26m8-ugT6QTcvyI"
 
 
-def get_books_by_genre(genre, amount=10):
+def get_books_by_genre(genre, amount=5):
     start_index = 3 * random.randint(0, 30)
     url = f"https://www.googleapis.com/books/v1/volumes?q=subject:{genre}&maxResults={amount}&langRestrict=ru&startIndex={start_index}&key={API_KEY}"
     response = requests.get(url)
@@ -51,7 +51,7 @@ def get_book_by_id(volume_id):
     return results
 
 
-def get_books_by_title(query, amount=10):
+def get_books_by_title(query, amount=5):
     url = f"https://www.googleapis.com/books/v1/volumes?q=intitle:{query}&maxResults={amount}&langRestrict=ru&key={API_KEY}"
     response = requests.get(url)
     if response.status_code != 200:
@@ -89,7 +89,7 @@ def get_overview(book_id):
     return overview
 
 
-def get_books_by_author(author, amount=10):
+def get_books_by_author(author, amount=5):
     url = f"https://www.googleapis.com/books/v1/volumes?q=inauthor:{author}&maxResults={amount}&langRestrict=ru&key={API_KEY}"
     response = requests.get(url)
     if response.status_code != 200:

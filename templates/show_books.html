@@ -9,7 +9,6 @@
     <h2 class="text-center mb-4">Книги по вашему настроению</strong></h2>
 
 
-
     {% if params %}
     <div class="row justify-content-center">
         {% for book in params %}
@@ -43,7 +42,7 @@
                             <i class="fas fa-heart"></i> Добавить в избранное
                         </button>
                     </form>
-                        <div class="rating-block">
+                    <div class="rating-block">
                         <button class="open-rating-btn"><i class="fa-solid fa-star"></i> Оценить книгу</button>
                         <div class="overlay">
                             <div class="rating-popup">
@@ -75,8 +74,11 @@
             </div>
         </div>
         {% endfor %}
-        <button class="btn_newbooks" onclick="history.go(0)">
-            Найти еще книги
+
+    </div>
+    <div class="text-center mt-4">
+        <button class="btn btn-secondary btn-lg" onclick="history.go(0)">
+            🔄 Найти ещё книги
         </button>
     </div>
     {% else %}

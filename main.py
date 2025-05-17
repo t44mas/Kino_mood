@@ -119,7 +119,7 @@ def choice_of_mood():
 
 @app.route('/books/<genre>', methods=["GET"])
 def show_books(genre):
-    params = get_books_by_genre(genre, amount=3)
+    params = get_books_by_genre(genre)
     return render_template(
         'show_books.html',
         title="Найденные книги",
@@ -262,7 +262,7 @@ def history():
 def search_by_author(author):
     if not author:
         author = request.args.get('author', '').strip()
-    books = get_books_by_author(author, amount=3)
+    books = get_books_by_author(author)
     return render_template('search_by_author.html', params=books, query=author)
 
 
@@ -377,28 +377,35 @@ def register():
 @login_required
 def profile():
     photo_path = None
-
     with db_session.create_session() as db_sess:
         user = db_sess.query(User).get(current_user.id)
+        if not user:
+            flash("Пользователь не найден", "danger")
+            return redirect(url_for('index'))
         favorite_count = db_sess.query(Favorite).filter(Favorite.user_id == user.id).count()
-
         if request.method == 'POST':
             file = request.files.get('profile_photo')
-            allowed_file = '.' in file.filename and file.filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-            if file and allowed_file:
-                filename = secure_filename(file.filename)
-                filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                file.save(filepath)
-
-                user.profile_photo = filepath
-                db_sess.commit()
-                photo_path = filepath
-
+            if file and '.' in file.filename:
+                ext = file.filename.rsplit('.', 1)[1].lower()
+                if ext in ALLOWED_EXTENSIONS:
+                    filename = secure_filename(file.filename)
+                    filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                    file.save(filepath)
+                    user.profile_photo = filepath
+                    db_sess.commit()
+                    photo_path = filepath
+        user_data = {
+            'username': user.username,
+            'email': user.email,
+            'profile_photo': user.profile_photo
+        }
         photo_path = photo_path or user.profile_photo
-        print(photo_path)
-
-    return render_template('profile.html', user=user, favorite_count=favorite_count, photo_path=photo_path)
-
+    return render_template(
+        'profile.html',
+        user=user_data,
+        favorite_count=favorite_count,
+        photo_path=photo_path
+    )
 
 @app.route('/profile/<username>', methods=['GET'])
 @login_required
@@ -419,7 +426,7 @@ def search_by_title():
     if not query:
         return render_template('search_by_title.html', books=[], query=query, message="Введите запрос")
 
-    books = get_books_by_title(query, amount=3)
+    books = get_books_by_title(query)
 
     if not books:
         return render_template('search_by_title.html', books=[], query=query, message="Ничего не найдено")
