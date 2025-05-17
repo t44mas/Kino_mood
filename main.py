@@ -302,7 +302,6 @@ def favourites_books():
 
 
 @app.route('/favourites_books/<username>', methods=["GET"])
-@login_required
 def user_favourites_books(username):
     with db_session.create_session() as db_sess:
         user = db_sess.query(User).filter(User.username == username).first()
@@ -408,7 +407,6 @@ def profile():
     )
 
 @app.route('/profile/<username>', methods=['GET'])
-@login_required
 def userprofile(username):
     photo_path = None
     with db_session.create_session() as db_sess:
