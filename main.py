@@ -3,9 +3,6 @@ import os
 from flask import Flask, render_template, redirect, jsonify, request, url_for, g, flash
 import requests
 from flask_login import LoginManager, login_user, current_user, login_required, logout_user
-from bs4 import BeautifulSoup
-from pyexpat.errors import messages
-from sqlalchemy import desc
 from sqlalchemy.orm import joinedload
 from werkzeug.utils import secure_filename
 
